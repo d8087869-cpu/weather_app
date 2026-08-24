@@ -48,6 +48,13 @@ def get_location(city, country, state=""):
         print("Could not connect to the internet.")
         return None
 
+    except requests.exceptions.HTTPError as error:
+        if error.response.status_code == 401:
+            print("Invalid API key.")
+        else:
+            print(f"HTTP error: {error.response.status_code}")
+        return None
+
     if not data:
         return None
 
@@ -87,10 +94,24 @@ def get_weather(latitude, longitude):
         "lon": longitude,
         "appid": API_KEY,
         "units": "metric"}
-    response = requests.get(WEATHER_URL, params= params, timeout=10)
-    response.raise_for_status()
-    data = response.json()
+    try:
+        response = requests.get(WEATHER_URL, params= params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+    except requests.exceptions.Timeout:
+        print("The request timed out.")
+        return None
 
+    except requests.exceptions.ConnectionError:
+        print("Could not connect to the internet.")
+        return None
+
+    except requests.exceptions.HTTPError as error:
+        if error.response.status_code == 401:
+            print("Invalid API key.")
+        else:
+            print(f"HTTP error: {error.response.status_code}")
+        return None
     return data
 
 def process_weather_data(location, weather):
@@ -149,6 +170,8 @@ def main():
             print(f"Longitude: {longitude}")
 
             weather = get_weather(latitude, longitude)
+            
+        if weather is not None:
 
             weather_result = process_weather_data(location, weather)
 
