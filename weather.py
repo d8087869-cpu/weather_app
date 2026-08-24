@@ -36,10 +36,17 @@ def get_location(city, country, state=""):
         "q": location_query,
         "limit": 1,
         "appid": API_KEY}
+    try:
+        response = requests.get(GEO_URL, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+    except requests.exceptions.Timeout:
+        print("the request timed out.")
+        return None
 
-    response = requests.get(GEO_URL, params=params)
-
-    data = response.json()
+    except requests.exceptions.ConnectionError:
+        print("Could not connect to the internet.")
+        return None
 
     if not data:
         return None
@@ -80,8 +87,8 @@ def get_weather(latitude, longitude):
         "lon": longitude,
         "appid": API_KEY,
         "units": "metric"}
-    response = requests.get(WEATHER_URL, params= params)
-
+    response = requests.get(WEATHER_URL, params= params, timeout=10)
+    response.raise_for_status()
     data = response.json()
 
     return data
