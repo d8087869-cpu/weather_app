@@ -165,6 +165,11 @@ def main():
     if country == "US" and state is None:
         return
 
+    location = get_location(city, country, state)
+    if location is None:
+        print("Location not found.")
+        return
+
     latitude = location["lat"]
     longitude = location["lon"]
 
