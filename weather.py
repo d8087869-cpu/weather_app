@@ -12,6 +12,20 @@ GEO_URL = "https://api.openweathermap.org/geo/1.0/direct"
 
 WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
 
+CSV_FILE = "weather_history.csv"
+
+fieldnames = [
+    "search_time",
+    "city",
+    "state",
+    "country",
+    "temperature",
+    "feels_like",
+    "condition",
+    "humidity",
+    "wind_speed"]
+
+
 def get_location(city, country, state=""):
     if country == "US":
         location_query = f"{city},{state},{country}"
@@ -99,6 +113,17 @@ def print_weather(weather_result):
     print(f"Humidity: {weather_result['humidity']}%")
     print(f"Wind speed: {weather_result['wind_speed']} m/s")
 
+def save_weather_to_csv(weather_result):
+    file_exists = os.path.exists(CSV_FILE)
+
+    with open(CSV_FILE, "a", newline="") as file:
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+            if not file_exists:
+                writer.writeheader()
+            writer.writerow(weather_result)
+    return True
+
 def main():
     city = get_city()
     country = get_country()
@@ -121,5 +146,10 @@ def main():
             weather_result = process_weather_data(location, weather)
 
             print_weather(weather_result)
+
+            saved = save_weather_to_csv(weather_result)
+            if saved:
+                print("Weather result saved to weather_history.csv")
+
 
 main()
