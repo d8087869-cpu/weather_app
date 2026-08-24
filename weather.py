@@ -154,32 +154,36 @@ def save_weather_to_csv(weather_result):
 
 def main():
     city = get_city()
+    if city is None:
+        return
+
     country = get_country()
+    if country is None:
+        return
+
     state = get_state(country)
+    if country == "US" and state is None:
+        return
 
-    if city and country:
-        location = get_location(city, country, state)
+    latitude = location["lat"]
+    longitude = location["lon"]
 
-        if location is None:
-            print("Location not found.")
-        else:
-            latitude = location["lat"]
-            longitude = location["lon"]
+    print(f"Latitude: {latitude}")
+    print(f"Longitude: {longitude}")
 
-            print(f"Latitude: {latitude}")
-            print(f"Longitude: {longitude}")
+    weather = get_weather(latitude, longitude)
+    if weather is None:
+        return
 
-            weather = get_weather(latitude, longitude)
-            
-        if weather is not None:
+    weather_result = process_weather_data(location, weather)
 
-            weather_result = process_weather_data(location, weather)
+    print_weather(weather_result)
 
-            print_weather(weather_result)
+    saved = save_weather_to_csv(weather_result)
 
-            saved = save_weather_to_csv(weather_result)
-            if saved:
-                print("Weather result saved to weather_history.csv")
+    if saved:
+        print("Weather result saved to weather_history.csv")
 
 
-main()
+if __name__ == "__main__":
+    main()
